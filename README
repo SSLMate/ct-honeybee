@@ -35,7 +35,7 @@ ct-honeybee uploads STHs to the following auditors:
 	ct.grahamedgecombe.com
 
 If you run an auditor that implements the sth-pollination endpoint
-described in Section 8.2 of draft-ietf-trans-gossip-04, please get in
+described in Section 8.2 of draft-ietf-trans-gossip-00, please get in
 touch <sslmate@sslmate.com> and we will add you to ct-honeybee.
 
 
@@ -48,7 +48,7 @@ TECHNICAL OPERATION
 2. Shuffle the list of auditors.
 
 3. For each auditor: upload the list of STHs to the auditor using the
-   protocol described in Section 8.2 of draft-ietf-trans-gossip-04.
+   protocol described in Section 8.2 of draft-ietf-trans-gossip-00.
    Add each returned STH to the list of STHs so they get pollinated
    to subsequent auditors.  Since we shuffle the list of auditors,
    we will pollinate in a different order each time ct-honeybee is run.

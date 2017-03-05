@@ -93,7 +93,7 @@ random.shuffle(auditors)
 
 for auditor_domain in auditors:
 	try:
-		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct-gossip/v1/sth-pollination",
+		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
 					     data=json.dumps(pollen).encode("utf8"),
 					     headers={"Content-Type": "application/json"})
 		with urllib.request.urlopen(req, timeout=15) as response:
