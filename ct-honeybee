@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+
+#
+# The Certificate Transparency Honeybee (ct-honeybee) helps ensure the
+# integrity of the Certificate Transparency ecosystem by "pollinating"
+# signed tree heads (STHs) between logs and auditors.
+#
+# You can help out the Certificate Transparency ecosystem by running
+# ct-honeybee on your workstation/server/toaster every hour or so (consider
+# randomizing the minute so that not everyone is running ct-honeybee at the
+# same time).  Running ct-honeybee from many different Internet vantage
+# points increases the likelihood of detecting a log which has presented
+# a different view of the log to different clients.
+#
+# Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
+#
+# To the extent possible under law, the author(s) have dedicated all
+# copyright and related and neighboring rights to this software to the
+# public domain worldwide. This software is distributed without any
+# warranty.
+#
+# You should have received a copy of the CC0 Public
+# Domain Dedication along with this software. If not, see
+# <http://creativecommons.org/publicdomain/zero/1.0/>.
+#
+
+import json
+import random
+import re
+import sys
+import urllib.request
+
+logs = [
+	# [ "Log Address", "Log ID (base64-encoded sha256 of log public key)" ]
+	[ "ct.googleapis.com/aviator", "aPaY+B9kgr46jO65KB1M/HFRXWeT1ETRCmesu09P+8Q=" ],
+	[ "ct.googleapis.com/pilot", "pLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BA=" ],
+	[ "ct.googleapis.com/icarus", "KTxRllTIOWW6qlD8WAfUt2+/WHopctykwwz05UVH9Hg=" ],
+	[ "ct.googleapis.com/rocketeer", "7ku9t3XOYLrhQmkfq+GeZqMPfl+wctiDAMR7iXqo/cs=" ],
+	[ "ct.googleapis.com/skydiver", "u9nfvB+KcbWTlCOXqpJ7RzhXlQqrUugakJZkNo4e0YU=" ],
+	[ "ct1.digicert-ct.com/log", "VhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0=" ],
+	[ "ct.ws.symantec.com", "3esdK3oNT6Ygi4GtgWhwfi6OnQHVXIiNPRHEzbbsvsw=" ],
+	[ "vega.ws.symantec.com", "vHjh38X2PGhGSTNNoQ+hXwl5aSAJwIG08/aRfz7ZuKU=" ],
+	[ "ctlog.api.venafi.com", "rDua7X+pZ0dXFZ5tfVdWcvnZgQCUHpve/+yhMTt1eC0=" ],
+	[ "ctlog.wosign.com", "QbLcLonmPOSvG6e7Kb9oxt7m+fHMBH4w3/rjs7olkmM=" ],
+	[ "ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg=" ],
+	[ "ct.startssl.com", "NLtq1sPfnAPuqKSZ/3iRSGydXlysktAfe/0bzhnbSO8=" ],
+	[ "www.certificatetransparency.cn/ct", "4BJ2KekEllZOPQFHmESYqkj4rbFmAOt5AqHvmQmQYnM=" ],
+	[ "ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs=" ],
+	[ "sirius.ws.symantec.com", "FZcEiNe5l6Bb61JRKt7o0ui0oxZSZBIan6v71fha2T8=" ],
+	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
+]
+
+auditors = [
+	"certspotter.com",
+	"ct.grahamedgecombe.com",
+]
+
+base64_re = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
+
+def is_base64(obj):
+	return isinstance(obj, str) and base64_re.search(obj) is not None
+
+def is_sth(obj):
+	return isinstance(obj, dict) \
+	   and "sth_version" in obj and isinstance(obj["sth_version"], int) \
+	   and "tree_size" in obj and isinstance(obj["tree_size"], int) \
+	   and "timestamp" in obj and isinstance(obj["timestamp"], int) \
+	   and "sha256_root_hash" in obj and is_base64(obj["sha256_root_hash"]) \
+	   and "tree_head_signature" in obj and is_base64(obj["tree_head_signature"]) \
+	   and "log_id" in obj and is_base64(obj["log_id"])
+
+def is_pollen(obj):
+	return isinstance(obj, dict) \
+	   and "sths" in obj and isinstance(obj["sths"], list)
+
+pollen = { "sths": [] }
+
+for log_server, log_id in logs:
+	try:
+		with urllib.request.urlopen("https://" + log_server + "/ct/v1/get-sth", timeout=15, data=None) as response:
+			sth = json.loads(response.read().decode("utf-8"))
+			if isinstance(sth, dict):
+				sth["sth_version"] = 0
+				sth["log_id"] = log_id
+				if is_sth(sth):
+					pollen["sths"].append(sth)
+	except urllib.error.URLError as err:
+		print("Log error: %s: %s" % (log_server, err), file=sys.stderr)
+	except ValueError as err:
+		print("Log error: %s: %s" % (log_server, err), file=sys.stderr)
+
+random.shuffle(auditors)
+
+for auditor_domain in auditors:
+	try:
+		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct-gossip/v1/sth-pollination",
+					     data=json.dumps(pollen).encode("utf8"),
+					     headers={"Content-Type": "application/json"})
+		with urllib.request.urlopen(req, timeout=15) as response:
+			more_pollen = json.loads(response.read().decode("utf-8"))
+			if is_pollen(more_pollen):
+				for sth in more_pollen["sths"]:
+					if is_sth(sth):
+						pollen["sths"].append(sth)
+	except urllib.error.URLError as err:
+		print("Auditor error: %s: %s" % (auditor_domain, err), file=sys.stderr)
+	except ValueError as err:
+		print("Auditor error: %s: %s" % (auditor_domain, err), file=sys.stderr)
+
+#print(json.dumps(pollen))
