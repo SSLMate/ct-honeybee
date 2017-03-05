@@ -55,7 +55,7 @@ auditors = [
 	"ct.grahamedgecombe.com",
 ]
 
-user_agent = "ct-honeybee"
+user_agent = "ct-honeybee (https://github.com/SSLMate/ct-honeybee/)"
 timeout = 15
 
 base64_re = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
