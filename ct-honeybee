@@ -27,6 +27,7 @@
 import json
 import random
 import re
+import socket
 import sys
 import urllib.request
 
@@ -89,9 +90,7 @@ for log_address, log_id in logs:
 				sth["log_id"] = log_id
 				if is_sth(sth):
 					pollen["sths"].append(sth)
-	except urllib.error.URLError as err:
-		print("Log error: %s: %s" % (log_address, err), file=sys.stderr)
-	except ValueError as err:
+	except (urllib.error.URLError, ValueError, socket.timeout) as err:
 		print("Log error: %s: %s" % (log_address, err), file=sys.stderr)
 
 random.shuffle(auditors)
@@ -107,9 +106,7 @@ for auditor_domain in auditors:
 				for sth in more_pollen["sths"]:
 					if is_sth(sth):
 						pollen["sths"].append(sth)
-	except urllib.error.URLError as err:
-		print("Auditor error: %s: %s" % (auditor_domain, err), file=sys.stderr)
-	except ValueError as err:
+	except (urllib.error.URLError, ValueError, socket.timeout) as err:
 		print("Auditor error: %s: %s" % (auditor_domain, err), file=sys.stderr)
 
 #print(json.dumps(pollen))
