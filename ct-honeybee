@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 #
-# The Certificate Transparency Honeybee (ct-honeybee) helps ensure the
-# integrity of the Certificate Transparency ecosystem by "pollinating"
-# signed tree heads (STHs) between logs and auditors.
+# The Certificate Transparency Honeybee (ct-honeybee) is a lightweight
+# program that retrieves signed tree heads (STHs) from Certificate
+# Transparency logs and uploads them to auditors.
 #
-# You can help out the Certificate Transparency ecosystem by running
-# ct-honeybee on your workstation/server/toaster every hour or so (consider
-# randomizing the minute so that not everyone is running ct-honeybee at the
-# same time).  Running ct-honeybee from many different Internet vantage
-# points increases the likelihood of detecting a log which has presented
-# a different view of the log to different clients.
+# You can help strengthen the integrity of the Certificate Transparency
+# ecosystem by running ct-honeybee on your workstation/server/toaster every
+# hour or so (pick a random minute so that not everyone runs ct-honeybee
+# at the same time).  Running ct-honeybee from many different Internet
+# vantage points increases the likelihood of detecting a misbehaving log
+# which has presented a different view of the log to different clients.
 #
 # Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
 #
