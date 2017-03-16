@@ -52,6 +52,8 @@ logs = [
 	[ "ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs=" ],
 	[ "sirius.ws.symantec.com", "FZcEiNe5l6Bb61JRKt7o0ui0oxZSZBIan6v71fha2T8=" ],
 	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
+	[ "mammoth.ct.comodo.com", "b1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RM=" ],
+	[ "sabre.ct.comodo.com", "VYHUwhaQNgFK6gubVzxT8MDkOHhwJQgXL6OqHQcT0ww=" ],
 ]
 
 auditors = [
