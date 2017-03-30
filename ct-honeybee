@@ -87,7 +87,7 @@ for log_address, log_id in logs:
 	try:
 		req = urllib.request.Request("https://" + log_address + "/ct/v1/get-sth",
 					     data=None, headers={"User-Agent": ""})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=timeout, cafile="roots.pem") as response:
 			sth = json.loads(response.read().decode("utf-8"))
 			if isinstance(sth, dict):
 				sth["sth_version"] = 0
@@ -104,7 +104,7 @@ for auditor_domain in auditors:
 		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
 					     data=json.dumps(pollen).encode("utf8"),
 					     headers={"Content-Type": "application/json", "User-Agent": user_agent})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=timeout, cafile="roots.pem") as response:
 			more_pollen = json.loads(response.read().decode("utf-8"))
 			if is_pollen(more_pollen):
 				for sth in more_pollen["sths"]:
