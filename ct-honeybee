@@ -45,7 +45,6 @@ if len(sys.argv) > 1 and sys.argv[1] == "-":
         if cafile:
                 ctx.load_verify_locations(cafile=cafile)
         ctx.verify_mode = ssl.VerifyMode.CERT_REQUIRED
-        print("Done", ctx.cert_store_stats(), ctx.verify_mode)
 
 logs = [
 	# [ "Log Address", "Log ID (base64-encoded sha256 of log public key)" ]
