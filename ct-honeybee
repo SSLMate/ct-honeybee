@@ -116,8 +116,6 @@ for auditor_domain in auditors:
                                                                 break
                                                 if not e:
                                                         pollen["sths"].append(sth)
-                                                else:
-                                                        print("Dedupe")
 	except (urllib.error.URLError, ValueError, socket.timeout) as err:
 		print("[%s] ct-honeybee: Auditor error: %s: %s" % (time.strftime(time_format), auditor_domain, err), file=sys.stderr)
 
