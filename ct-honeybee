@@ -12,7 +12,7 @@
 # vantage points increases the likelihood of detecting a misbehaving log
 # which has presented a different view of the log to different clients.
 #
-# Version: 2017-03-11
+# Version: 2017-03-16
 #
 # Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
 #
