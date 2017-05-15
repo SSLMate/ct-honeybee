@@ -48,7 +48,6 @@ logs = [
 	[ "ctlog.wosign.com", "QbLcLonmPOSvG6e7Kb9oxt7m+fHMBH4w3/rjs7olkmM=" ],
 	[ "ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg=" ],
 	[ "ct.startssl.com", "NLtq1sPfnAPuqKSZ/3iRSGydXlysktAfe/0bzhnbSO8=" ],
-	[ "www.certificatetransparency.cn/ct", "4BJ2KekEllZOPQFHmESYqkj4rbFmAOt5AqHvmQmQYnM=" ],
 	[ "ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs=" ],
 	[ "sirius.ws.symantec.com", "FZcEiNe5l6Bb61JRKt7o0ui0oxZSZBIan6v71fha2T8=" ],
 	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
