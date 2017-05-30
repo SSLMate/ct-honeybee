@@ -1,0 +1,5 @@
+All the roots needed for logs and auditors.
+
+If you get a binary file from the CA, then you can convert with:
+
+openssl -in <binary> -inform DER -out <pem>

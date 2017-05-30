@@ -27,12 +27,24 @@
 #
 
 import json
+import os
 import random
 import re
 import socket
+import ssl
 import sys
 import time
 import urllib.request
+
+ctx = None
+if len(sys.argv) > 1 and sys.argv[1] == "-":
+        cafile = os.path.join(os.path.dirname(__file__), "roots.pem")
+        if not os.path.exists(cafile):
+                cafile = None
+        ctx = ssl.SSLContext()
+        if cafile:
+                ctx.load_verify_locations(cafile=cafile)
+        ctx.verify_mode = ssl.VerifyMode.CERT_REQUIRED
 
 logs = [
 	# [ "Log Address", "Log ID (base64-encoded sha256 of log public key)" ]
@@ -88,7 +100,7 @@ for log_address, log_id in logs:
 	try:
 		req = urllib.request.Request("https://" + log_address + "/ct/v1/get-sth",
 					     data=None, headers={"User-Agent": ""})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
 			sth = json.loads(response.read().decode("utf-8"))
 			if isinstance(sth, dict):
 				sth["sth_version"] = 0
@@ -105,7 +117,7 @@ for auditor_domain in auditors:
 		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
 					     data=json.dumps(pollen).encode("utf8"),
 					     headers={"Content-Type": "application/json", "User-Agent": user_agent})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
 			more_pollen = json.loads(response.read().decode("utf-8"))
 			if is_pollen(more_pollen):
 				for sth in more_pollen["sths"]:
