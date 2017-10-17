@@ -12,9 +12,7 @@ which has presented a different view of the log to different clients.
 
 INSTALLATION
 
-Python 3 is required.  On macOS, you should install Python from Homebrew
-instead of using the system Python, since the system Python does not
-have a root certificate store.
+Python 3 is required.
 
 Install ct-honeybee and put it in a cron job to run once an hour or so
 (pick a random minute so that not everyone runs ct-honeybee at the

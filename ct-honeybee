@@ -30,6 +30,7 @@ import json
 import random
 import re
 import socket
+import ssl
 import sys
 import time
 import urllib.request
@@ -83,6 +84,17 @@ def is_pollen(obj):
 	   and "sths" in obj and isinstance(obj["sths"], list)
 
 pollen = { "sths": [] }
+
+# Disable certificate validation. Unfortunately, there is no guarantee
+# that logs use a certificate from a widely-trusted CA. Fortunately,
+# all responses are signed by logs and verified by auditors, so there
+# is technically no need for certificate validation.
+try:
+	_create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+	pass
+else:
+	ssl._create_default_https_context = _create_unverified_https_context
 
 for log_address, log_id in logs:
 	try:
