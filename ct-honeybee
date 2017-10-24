@@ -61,7 +61,6 @@ logs = [
 	[ "ct.googleapis.com/logs/argon2019", "Y/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0=" ],
 	[ "ct.googleapis.com/logs/argon2020", "sh4FzIuizYogTodm+Su5iiUgZ2va+nDnsklTLe+LkF4=" ],
 	[ "ct.googleapis.com/logs/argon2021", "9lyUL9F3MCIUVBgIMJRWjuNNExkzv98MLyALzE7xZOM=" ],
-	[ "ct.sheca.com", "MtxZwtTEGWjVbhS8YayPDkXbOfrzwVWqQlL1AB+gxiM=" ],
 	[ "ctlog.wotrus.com", "oXEni6iuir1G4jqDj74jdM4lWBrNpUBslrhxAEfpvsI=" ],
 ]
 
