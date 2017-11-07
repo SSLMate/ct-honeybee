@@ -134,7 +134,13 @@ for auditor_domain in auditors:
 			if is_pollen(more_pollen):
 				for sth in more_pollen["sths"]:
 					if is_sth(sth):
-						pollen["sths"].append(sth)
+                                                e = False
+                                                for s2 in pollen["sths"]:
+                                                        if s2["sha256_root_hash"] == sth["sha256_root_hash"]:
+                                                                e = True
+                                                                break
+                                                if not e:
+                                                        pollen["sths"].append(sth)
 	except (urllib.error.URLError, ValueError, socket.timeout) as err:
 		print("[%s] ct-honeybee: Auditor error: %s: %s" % (time.strftime(time_format), auditor_domain, err), file=sys.stderr)
 
