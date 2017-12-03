@@ -74,7 +74,8 @@ auditors = [
 ]
 
 user_agent = "ct-honeybee (https://github.com/SSLMate/ct-honeybee/)"
-timeout = 15
+log_timeout = 15
+auditor_timeout = 60
 
 time_format = '%Y-%m-%d %H:%M:%S %z'
 base64_re = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
@@ -112,7 +113,7 @@ for log_address, log_id in logs:
 	try:
 		req = urllib.request.Request("https://" + log_address + "/ct/v1/get-sth",
 					     data=None, headers={"User-Agent": ""})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=log_timeout) as response:
 			sth = json.loads(response.read().decode("utf-8"))
 			if isinstance(sth, dict):
 				sth["sth_version"] = 0
@@ -129,7 +130,7 @@ for auditor_domain in auditors:
 		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
 					     data=json.dumps(pollen).encode("utf8"),
 					     headers={"Content-Type": "application/json", "User-Agent": user_agent})
-		with urllib.request.urlopen(req, timeout=timeout) as response:
+		with urllib.request.urlopen(req, timeout=auditor_timeout) as response:
 			more_pollen = json.loads(response.read().decode("utf-8"))
 			if is_pollen(more_pollen):
 				for sth in more_pollen["sths"]:
