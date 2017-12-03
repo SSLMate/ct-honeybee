@@ -96,6 +96,21 @@ def is_pollen(obj):
 	return isinstance(obj, dict) \
 	   and "sths" in obj and isinstance(obj["sths"], list)
 
+def is_known_log(arg):
+	for _, log_id in logs:
+		if arg == log_id:
+			return True
+	return False
+
+def is_same_sth(a, b):
+	return a["log_id"] == b["log_id"] \
+	   and a["tree_size"] == b["tree_size"] \
+	   and a["timestamp"] == b["timestamp"] \
+	   and a["sha256_root_hash"] == b["sha256_root_hash"]
+
+def has_sth(sths, target_sth):
+	return any(sth for sth in sths if is_same_sth(sth, target_sth))
+
 pollen = { "sths": [] }
 
 # Disable certificate validation. Unfortunately, there is no guarantee
@@ -134,7 +149,7 @@ for auditor_domain in auditors:
 			more_pollen = json.loads(response.read().decode("utf-8"))
 			if is_pollen(more_pollen):
 				for sth in more_pollen["sths"]:
-					if is_sth(sth):
+					if is_sth(sth) and is_known_log(sth["log_id"]) and not has_sth(pollen["sths"], sth):
 						pollen["sths"].append(sth)
 	except (urllib.error.URLError, ValueError, socket.timeout) as err:
 		print("[%s] ct-honeybee: Auditor error: %s: %s" % (time.strftime(time_format), auditor_domain, err), file=sys.stderr)
