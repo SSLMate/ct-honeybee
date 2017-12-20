@@ -66,6 +66,11 @@ logs = [
 	[ "ct.cloudflare.com/logs/nimbus2019", "dH7agzGtMxCRIZzOJU9CcMK//V5CIAjGNzV55hB7zFY=" ],
 	[ "ct.cloudflare.com/logs/nimbus2020", "Xqdz+d9WwOe1Nkh90EngMnqRmgyEoRIShBh1loFxRVg=" ],
 	[ "ct.cloudflare.com/logs/nimbus2021", "RJRlLrDuzq/EQAfYqP4owNrmgr7YyzG1P9MzlrW2gag=" ],
+	[ "yeti2018.ct.digicert.com/log", "wRZK4Kdy0tQ5LcgKwQdw1PDEm96ZGkhAwfoHUWT2M2A=" ],
+	[ "yeti2019.ct.digicert.com/log", "4mlLribo6UAJ6IYbtjuD1D7n/nSI+6SPKJMBnd3x2/4=" ],
+	[ "yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM=" ],
+	[ "yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso=" ],
+	[ "yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI=" ],
 ]
 
 auditors = [
