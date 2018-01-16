@@ -71,6 +71,11 @@ logs = [
 	[ "yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM=" ],
 	[ "yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso=" ],
 	[ "yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI=" ],
+	[ "nessie2018.ct.digicert.com/log", "b/FBtWR+QiL37wUs7658If1gjifSr1pun0uKN9ZjPuU=" ],
+	[ "nessie2019.ct.digicert.com/log", "/kRhCLHQGreKYsz+q2qysrq/86va2ApNizDfLQAIgww=" ],
+	[ "nessie2020.ct.digicert.com/log", "xlKg7EjOs/yrFwmSxDqHQTMJ6ABlomJSQBujNioXxWU=" ],
+	[ "nessie2021.ct.digicert.com/log", "7sCV7o1yZA+S48O5G8cSo2lqCXtLahoUOOZHssvtxfk=" ],
+	[ "nessie2022.ct.digicert.com/log", "UaOw9f0BeZxWbbg3eI8MpHrMGyfL956IQpoN/tSLBeU=" ],
 ]
 
 auditors = [
