@@ -76,6 +76,11 @@ logs = [
 	[ "nessie2020.ct.digicert.com/log", "xlKg7EjOs/yrFwmSxDqHQTMJ6ABlomJSQBujNioXxWU=" ],
 	[ "nessie2021.ct.digicert.com/log", "7sCV7o1yZA+S48O5G8cSo2lqCXtLahoUOOZHssvtxfk=" ],
 	[ "nessie2022.ct.digicert.com/log", "UaOw9f0BeZxWbbg3eI8MpHrMGyfL956IQpoN/tSLBeU=" ],
+	[ "ct.googleapis.com/logs/xenon2018", "sQzVWabWeEaBH335pRUyc5rEjXA76gMj2l04dVvArU4=" ],
+	[ "ct.googleapis.com/logs/xenon2019", "CEEUmABxUywWGQRgvPxH/cJlOvopLHKzf/hjrinMyfA=" ],
+	[ "ct.googleapis.com/logs/xenon2020", "B7dcG+V9aP/xsMYdIxXHuuZXfFeUt2ruvGE6GmnTohw=" ],
+	[ "ct.googleapis.com/logs/xenon2021", "fT7y+I//iFVoJMLAyp5SiXkrxQ54CX8uapdomX4i8Nc=" ],
+	[ "ct.googleapis.com/logs/xenon2022", "RqVV63X6kSAwtaKJafTzfREsQXS+/Um4havy/HD+bUc=" ],
 ]
 
 auditors = [
