@@ -1,31 +1,33 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# pylint: disable=invalid-name
 
-#
-# The Certificate Transparency Honeybee (ct-honeybee) is a lightweight
-# program that retrieves signed tree heads (STHs) from Certificate
-# Transparency logs and uploads them to auditors.
-#
-# You can help strengthen the integrity of the Certificate Transparency
-# ecosystem by running ct-honeybee on your workstation/server/toaster every
-# hour or so (pick a random minute so that not everyone runs ct-honeybee
-# at the same time).  Running ct-honeybee from many different Internet
-# vantage points increases the likelihood of detecting a misbehaving log
-# which has presented a different view of the log to different clients.
-#
-# Version: 2018-04-19
-#
-# Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
-#
-# To the extent possible under law, the author(s) have dedicated all
-# copyright and related and neighboring rights to this software to the
-# public domain worldwide. This software is distributed without any
-# warranty.
-#
-# You should have received a copy of the CC0 Public
-# Domain Dedication along with this software. If not, see
-# <https://creativecommons.org/publicdomain/zero/1.0/>.
-#
+"""
+The Certificate Transparency Honeybee (ct-honeybee) is a lightweight
+program that retrieves signed tree heads (STHs) from Certificate
+Transparency logs and uploads them to auditors.
 
+You can help strengthen the integrity of the Certificate Transparency
+ecosystem by running ct-honeybee on your workstation/server/toaster every
+hour or so (pick a random minute so that not everyone runs ct-honeybee
+at the same time).  Running ct-honeybee from many different Internet
+vantage points increases the likelihood of detecting a misbehaving log
+which has presented a different view of the log to different clients.
+
+Version: 2018-05-16
+
+Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
+
+To the extent possible under law, the author(s) have dedicated all
+copyright and related and neighboring rights to this software to the
+public domain worldwide. This software is distributed without any
+warranty.
+
+You should have received a copy of the CC0 Public
+Domain Dedication along with this software. If not, see
+<https://creativecommons.org/publicdomain/zero/1.0/>.
+"""
+
+from __future__ import print_function
 import json
 import random
 import re
@@ -33,146 +35,165 @@ import socket
 import ssl
 import sys
 import time
-import urllib.request
+try:  # Python 3 and newer only
+    from urllib.error import URLError
+    from urllib.request import Request, urlopen
+except ImportError:  # Python 2.7 and older
+    from urllib2 import Request, URLError, urlopen
 
-logs = [
-	# [ "Log Address", "Log ID (base64-encoded sha256 of log public key)" ]
-	[ "ct.cloudflare.com/logs/nimbus2017", "H7w24ALt6X9AGZ6Gs1c7ikIX2AGHdGrQ2gOgYFTSDfQ=" ],
-	[ "ct.cloudflare.com/logs/nimbus2018", "23Sv7ssp7LH+yj5xbSzluaq7NveEcYPHXZ1PN7Yfv2Q=" ],
-	[ "ct.cloudflare.com/logs/nimbus2019", "dH7agzGtMxCRIZzOJU9CcMK//V5CIAjGNzV55hB7zFY=" ],
-	[ "ct.cloudflare.com/logs/nimbus2020", "Xqdz+d9WwOe1Nkh90EngMnqRmgyEoRIShBh1loFxRVg=" ],
-	[ "ct.cloudflare.com/logs/nimbus2021", "RJRlLrDuzq/EQAfYqP4owNrmgr7YyzG1P9MzlrW2gag=" ],
-	[ "ct.gdca.com.cn", "yc+JCiEQnGZswXo+0GXJMNDgE1qf66ha8UIQuAckIao=" ],
-	[ "ct.googleapis.com/aviator", "aPaY+B9kgr46jO65KB1M/HFRXWeT1ETRCmesu09P+8Q=" ],
-	[ "ct.googleapis.com/daedalus", "HQJLjrFJizRN/YfqPvwJlvdQbyNdHUlwYaR3PEOcJfs=" ],
-	[ "ct.googleapis.com/icarus", "KTxRllTIOWW6qlD8WAfUt2+/WHopctykwwz05UVH9Hg=" ],
-	[ "ct.googleapis.com/logs/argon2017", "+tTJfMSe4vishcXqXOoJ0CINu/TknGtQZi/4aPhrjCg=" ],
-	[ "ct.googleapis.com/logs/argon2018", "pFASaQVaFVReYhGrN7wQP2KuVXakXksXFEU+GyIQaiU=" ],
-	[ "ct.googleapis.com/logs/argon2019", "Y/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0=" ],
-	[ "ct.googleapis.com/logs/argon2020", "sh4FzIuizYogTodm+Su5iiUgZ2va+nDnsklTLe+LkF4=" ],
-	[ "ct.googleapis.com/logs/argon2021", "9lyUL9F3MCIUVBgIMJRWjuNNExkzv98MLyALzE7xZOM=" ],
-	[ "ct.googleapis.com/logs/xenon2018", "sQzVWabWeEaBH335pRUyc5rEjXA76gMj2l04dVvArU4=" ],
-	[ "ct.googleapis.com/logs/xenon2019", "CEEUmABxUywWGQRgvPxH/cJlOvopLHKzf/hjrinMyfA=" ],
-	[ "ct.googleapis.com/logs/xenon2020", "B7dcG+V9aP/xsMYdIxXHuuZXfFeUt2ruvGE6GmnTohw=" ],
-	[ "ct.googleapis.com/logs/xenon2021", "fT7y+I//iFVoJMLAyp5SiXkrxQ54CX8uapdomX4i8Nc=" ],
-	[ "ct.googleapis.com/logs/xenon2022", "RqVV63X6kSAwtaKJafTzfREsQXS+/Um4havy/HD+bUc=" ],
-	[ "ct.googleapis.com/pilot", "pLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BA=" ],
-	[ "ct.googleapis.com/rocketeer", "7ku9t3XOYLrhQmkfq+GeZqMPfl+wctiDAMR7iXqo/cs=" ],
-	[ "ct.googleapis.com/skydiver", "u9nfvB+KcbWTlCOXqpJ7RzhXlQqrUugakJZkNo4e0YU=" ],
-	[ "ct.googleapis.com/submariner", "qJnYeAySkKr0YvMYgMz71SRR6XDQ+/WR73Ww2ZtkVoE=" ],
-	[ "ct.googleapis.com/testtube", "sMyD5aX5fWuvfAnMKEkEhyrH6IsTLGNQt8b9JuFsbHc=" ],
-	[ "ct.ws.symantec.com", "3esdK3oNT6Ygi4GtgWhwfi6OnQHVXIiNPRHEzbbsvsw=" ],
-	[ "ct1.digicert-ct.com/log", "VhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0=" ],
-	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
-	[ "ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs=" ],
-	[ "ctlog.gdca.com.cn", "kkow+Qkzb/Q11pk6EKx1osZBco5/wtZZrmGI/61AzgE=" ],
-	[ "ctlog.wotrus.com", "oXEni6iuir1G4jqDj74jdM4lWBrNpUBslrhxAEfpvsI=" ],
-	[ "ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg=" ],
-	[ "deneb.ws.symantec.com", "p85KTmIH4K3e5f2qSx+GdodntdACpV1HMQ5+ZwqV6rI=" ],
-	[ "dodo.ct.comodo.com", "23b9raxl59CVCIhuIVm9i5A1L1/q0+PcXiLrNQrMe5g=" ],
-	[ "log.gdca.com.cn", "cX6nQgl1voSicjVT8Xd8Jt1Rr04QIUQJTZAZtGL7Zmg=" ],
-	[ "log2.gdca.com.cn", "FDCNkMzQMBNQBcAcpSbYHoTodiTjm2JI4I9ySuo7tCo=" ],
-	[ "mammoth.ct.comodo.com", "b1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RM=" ],
-	[ "nessie2018.ct.digicert.com/log", "b/FBtWR+QiL37wUs7658If1gjifSr1pun0uKN9ZjPuU=" ],
-	[ "nessie2019.ct.digicert.com/log", "/kRhCLHQGreKYsz+q2qysrq/86va2ApNizDfLQAIgww=" ],
-	[ "nessie2020.ct.digicert.com/log", "xlKg7EjOs/yrFwmSxDqHQTMJ6ABlomJSQBujNioXxWU=" ],
-	[ "nessie2021.ct.digicert.com/log", "7sCV7o1yZA+S48O5G8cSo2lqCXtLahoUOOZHssvtxfk=" ],
-	[ "nessie2022.ct.digicert.com/log", "UaOw9f0BeZxWbbg3eI8MpHrMGyfL956IQpoN/tSLBeU=" ],
-	[ "plausible.ct.nordu.net", "qucLfzy41WbIbC8Wl5yfRF9pqw60U1WJsvd6AwEE880=" ],
-	[ "sabre.ct.comodo.com", "VYHUwhaQNgFK6gubVzxT8MDkOHhwJQgXL6OqHQcT0ww=" ],
-	[ "sirius.ws.symantec.com", "FZcEiNe5l6Bb61JRKt7o0ui0oxZSZBIan6v71fha2T8=" ],
-	[ "vega.ws.symantec.com", "vHjh38X2PGhGSTNNoQ+hXwl5aSAJwIG08/aRfz7ZuKU=" ],
-	[ "yeti2018.ct.digicert.com/log", "wRZK4Kdy0tQ5LcgKwQdw1PDEm96ZGkhAwfoHUWT2M2A=" ],
-	[ "yeti2019.ct.digicert.com/log", "4mlLribo6UAJ6IYbtjuD1D7n/nSI+6SPKJMBnd3x2/4=" ],
-	[ "yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM=" ],
-	[ "yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso=" ],
-	[ "yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI=" ],
+LOGS = [
+    #[ "Log Address", "Log ID (base64-encoded sha256 of log public key)"]
+    ["ct.cloudflare.com/logs/nimbus2017", "H7w24ALt6X9AGZ6Gs1c7ikIX2AGHdGrQ2gOgYFTSDfQ="],
+    ["ct.cloudflare.com/logs/nimbus2018", "23Sv7ssp7LH+yj5xbSzluaq7NveEcYPHXZ1PN7Yfv2Q="],
+    ["ct.cloudflare.com/logs/nimbus2019", "dH7agzGtMxCRIZzOJU9CcMK//V5CIAjGNzV55hB7zFY="],
+    ["ct.cloudflare.com/logs/nimbus2020", "Xqdz+d9WwOe1Nkh90EngMnqRmgyEoRIShBh1loFxRVg="],
+    ["ct.cloudflare.com/logs/nimbus2021", "RJRlLrDuzq/EQAfYqP4owNrmgr7YyzG1P9MzlrW2gag="],
+    ["ct.gdca.com.cn", "yc+JCiEQnGZswXo+0GXJMNDgE1qf66ha8UIQuAckIao="],
+    ["ct.googleapis.com/aviator", "aPaY+B9kgr46jO65KB1M/HFRXWeT1ETRCmesu09P+8Q="],
+    ["ct.googleapis.com/daedalus", "HQJLjrFJizRN/YfqPvwJlvdQbyNdHUlwYaR3PEOcJfs="],
+    ["ct.googleapis.com/icarus", "KTxRllTIOWW6qlD8WAfUt2+/WHopctykwwz05UVH9Hg="],
+    ["ct.googleapis.com/logs/argon2017", "+tTJfMSe4vishcXqXOoJ0CINu/TknGtQZi/4aPhrjCg="],
+    ["ct.googleapis.com/logs/argon2018", "pFASaQVaFVReYhGrN7wQP2KuVXakXksXFEU+GyIQaiU="],
+    ["ct.googleapis.com/logs/argon2019", "Y/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0="],
+    ["ct.googleapis.com/logs/argon2020", "sh4FzIuizYogTodm+Su5iiUgZ2va+nDnsklTLe+LkF4="],
+    ["ct.googleapis.com/logs/argon2021", "9lyUL9F3MCIUVBgIMJRWjuNNExkzv98MLyALzE7xZOM="],
+    ["ct.googleapis.com/logs/xenon2018", "sQzVWabWeEaBH335pRUyc5rEjXA76gMj2l04dVvArU4="],
+    ["ct.googleapis.com/logs/xenon2019", "CEEUmABxUywWGQRgvPxH/cJlOvopLHKzf/hjrinMyfA="],
+    ["ct.googleapis.com/logs/xenon2020", "B7dcG+V9aP/xsMYdIxXHuuZXfFeUt2ruvGE6GmnTohw="],
+    ["ct.googleapis.com/logs/xenon2021", "fT7y+I//iFVoJMLAyp5SiXkrxQ54CX8uapdomX4i8Nc="],
+    ["ct.googleapis.com/logs/xenon2022", "RqVV63X6kSAwtaKJafTzfREsQXS+/Um4havy/HD+bUc="],
+    ["ct.googleapis.com/pilot", "pLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BA="],
+    ["ct.googleapis.com/rocketeer", "7ku9t3XOYLrhQmkfq+GeZqMPfl+wctiDAMR7iXqo/cs="],
+    ["ct.googleapis.com/skydiver", "u9nfvB+KcbWTlCOXqpJ7RzhXlQqrUugakJZkNo4e0YU="],
+    ["ct.googleapis.com/submariner", "qJnYeAySkKr0YvMYgMz71SRR6XDQ+/WR73Ww2ZtkVoE="],
+    ["ct.googleapis.com/testtube", "sMyD5aX5fWuvfAnMKEkEhyrH6IsTLGNQt8b9JuFsbHc="],
+    ["ct.ws.symantec.com", "3esdK3oNT6Ygi4GtgWhwfi6OnQHVXIiNPRHEzbbsvsw="],
+    ["ct1.digicert-ct.com/log", "VhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0="],
+    ["ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8="],
+    ["ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs="],
+    ["ctlog.gdca.com.cn", "kkow+Qkzb/Q11pk6EKx1osZBco5/wtZZrmGI/61AzgE="],
+    ["ctlog.wotrus.com", "oXEni6iuir1G4jqDj74jdM4lWBrNpUBslrhxAEfpvsI="],
+    ["ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg="],
+    ["deneb.ws.symantec.com", "p85KTmIH4K3e5f2qSx+GdodntdACpV1HMQ5+ZwqV6rI="],
+    ["dodo.ct.comodo.com", "23b9raxl59CVCIhuIVm9i5A1L1/q0+PcXiLrNQrMe5g="],
+    ["log.gdca.com.cn", "cX6nQgl1voSicjVT8Xd8Jt1Rr04QIUQJTZAZtGL7Zmg="],
+    ["log2.gdca.com.cn", "FDCNkMzQMBNQBcAcpSbYHoTodiTjm2JI4I9ySuo7tCo="],
+    ["mammoth.ct.comodo.com", "b1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RM="],
+    ["nessie2018.ct.digicert.com/log", "b/FBtWR+QiL37wUs7658If1gjifSr1pun0uKN9ZjPuU="],
+    ["nessie2019.ct.digicert.com/log", "/kRhCLHQGreKYsz+q2qysrq/86va2ApNizDfLQAIgww="],
+    ["nessie2020.ct.digicert.com/log", "xlKg7EjOs/yrFwmSxDqHQTMJ6ABlomJSQBujNioXxWU="],
+    ["nessie2021.ct.digicert.com/log", "7sCV7o1yZA+S48O5G8cSo2lqCXtLahoUOOZHssvtxfk="],
+    ["nessie2022.ct.digicert.com/log", "UaOw9f0BeZxWbbg3eI8MpHrMGyfL956IQpoN/tSLBeU="],
+    ["plausible.ct.nordu.net", "qucLfzy41WbIbC8Wl5yfRF9pqw60U1WJsvd6AwEE880="],
+    ["sabre.ct.comodo.com", "VYHUwhaQNgFK6gubVzxT8MDkOHhwJQgXL6OqHQcT0ww="],
+    ["sirius.ws.symantec.com", "FZcEiNe5l6Bb61JRKt7o0ui0oxZSZBIan6v71fha2T8="],
+    ["vega.ws.symantec.com", "vHjh38X2PGhGSTNNoQ+hXwl5aSAJwIG08/aRfz7ZuKU="],
+    ["yeti2018.ct.digicert.com/log", "wRZK4Kdy0tQ5LcgKwQdw1PDEm96ZGkhAwfoHUWT2M2A="],
+    ["yeti2019.ct.digicert.com/log", "4mlLribo6UAJ6IYbtjuD1D7n/nSI+6SPKJMBnd3x2/4="],
+    ["yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM="],
+    ["yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso="],
+    ["yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI="],
 ]
 
-auditors = [
-	"certspotter.com",
-	"ct.grahamedgecombe.com",
+AUDITORS = [
+    "certspotter.com",
+    "ct.grahamedgecombe.com",
 ]
 
-user_agent = "ct-honeybee (https://github.com/SSLMate/ct-honeybee/)"
-log_timeout = 15
-auditor_timeout = 60
+USER_AGENT = "ct-honeybee (https://github.com/SSLMate/ct-honeybee/)"
+LOG_TIMEOUT = 15
+AUDITOR_TIMEOUT = 60
 
-time_format = '%Y-%m-%d %H:%M:%S %z'
-base64_re = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S %z'
+BASE64_RE = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
+
 
 def is_base64(obj):
-	return isinstance(obj, str) and base64_re.search(obj) is not None
+    """Returns True if obj is a str(ing) and contents look like a Base-64 string."""
+    return isinstance(obj, str) and BASE64_RE.search(obj) is not None
+
 
 def is_sth(obj):
-	return isinstance(obj, dict) \
-	   and "sth_version" in obj and isinstance(obj["sth_version"], int) \
-	   and "tree_size" in obj and isinstance(obj["tree_size"], int) \
-	   and "timestamp" in obj and isinstance(obj["timestamp"], int) \
-	   and "sha256_root_hash" in obj and is_base64(obj["sha256_root_hash"]) \
-	   and "tree_head_signature" in obj and is_base64(obj["tree_head_signature"]) \
-	   and "log_id" in obj and is_base64(obj["log_id"])
+    """Returns True if obj is a dict(ionary) and structure matches expectations."""
+    return isinstance(obj, dict) and \
+        "sth_version" in obj and isinstance(obj["sth_version"], int) and \
+        "tree_size" in obj and isinstance(obj["tree_size"], int) and \
+        "timestamp" in obj and isinstance(obj["timestamp"], int) and \
+        "sha256_root_hash" in obj and is_base64(obj["sha256_root_hash"]) and \
+        "tree_head_signature" in obj and is_base64(obj["tree_head_signature"]) and \
+        "log_id" in obj and is_base64(obj["log_id"])
+
 
 def is_pollen(obj):
-	return isinstance(obj, dict) \
-	   and "sths" in obj and isinstance(obj["sths"], list)
+    """Returns True if obj is a dict(ionary) and structure contains a list of sths."""
+    return isinstance(obj, dict) and \
+        "sths" in obj and isinstance(obj["sths"], list)
+
 
 def is_known_log(arg):
-	for _, log_id in logs:
-		if arg == log_id:
-			return True
-	return False
+    """Returns True if arg matches a known Log ID."""
+    for _, k_log_id in LOGS:
+        if arg == k_log_id:
+            return True
+    return False
 
-def is_same_sth(a, b):
-	return a["log_id"] == b["log_id"] \
-	   and a["tree_size"] == b["tree_size"] \
-	   and a["timestamp"] == b["timestamp"] \
-	   and a["sha256_root_hash"] == b["sha256_root_hash"]
+
+def is_same_sth(this, that):
+    """Returns True if this and that sths match."""
+    return this["log_id"] == that["log_id"] and \
+        this["tree_size"] == that["tree_size"] and \
+        this["timestamp"] == that["timestamp"] and \
+        this["sha256_root_hash"] == that["sha256_root_hash"]
+
 
 def has_sth(sths, target_sth):
-	return any(sth for sth in sths if is_same_sth(sth, target_sth))
+    """Returns True if sths contains target_sth."""
+    return any(sth for sth in sths if is_same_sth(sth, target_sth))
 
-pollen = { "sths": [] }
+POLLEN = {"sths": []}
 
-# Disable certificate validation. Unfortunately, there is no guarantee
-# that logs use a certificate from a widely-trusted CA. Fortunately,
-# all responses are signed by logs and verified by auditors, so there
+# Disable certificate validation when connecting to the CT logs.
+# Unfortunately, there is no guarantee that logs use a certificate
+# from a widely-trusted CA. Fortunately, all responses are signed
+# by logs and verified by auditors, so there
 # is technically no need for certificate validation.
 try:
-	_create_unverified_https_context = ssl._create_unverified_context
+    CONTEXT = ssl._create_unverified_context()  # pylint: disable=protected-access
 except AttributeError:
-	pass
-else:
-	ssl._create_default_https_context = _create_unverified_https_context
+    pass
 
-for log_address, log_id in logs:
-	try:
-		req = urllib.request.Request("https://" + log_address + "/ct/v1/get-sth",
-					     data=None, headers={"User-Agent": ""})
-		with urllib.request.urlopen(req, timeout=log_timeout) as response:
-			sth = json.loads(response.read().decode("utf-8"))
-			if isinstance(sth, dict):
-				sth["sth_version"] = 0
-				sth["log_id"] = log_id
-				if is_sth(sth):
-					pollen["sths"].append(sth)
-	except (urllib.error.URLError, ValueError, socket.timeout) as err:
-		print("[%s] ct-honeybee: Log error: %s: %s" % (time.strftime(time_format), log_address, err), file=sys.stderr)
+for log_address, log_id in LOGS:
+    try:
+        req = Request("https://" + log_address + "/ct/v1/get-sth",
+                      data=None, headers={"User-Agent": ""})
+        response = urlopen(req, timeout=LOG_TIMEOUT, context=CONTEXT)
+        sth = json.loads(response.read().decode("utf-8"))
+        if isinstance(sth, dict):
+            sth["sth_version"] = 0
+            sth["log_id"] = log_id
+            if is_sth(sth):
+                POLLEN["sths"].append(sth)
+    except (URLError, ValueError, socket.timeout) as err:
+        print("[%s] ct-honeybee: Log error: %s: %s" %
+              (time.strftime(TIME_FORMAT), log_address, err), file=sys.stderr)
 
-random.shuffle(auditors)
+random.shuffle(AUDITORS)
 
-for auditor_domain in auditors:
-	try:
-		req = urllib.request.Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
-					     data=json.dumps(pollen).encode("utf8"),
-					     headers={"Content-Type": "application/json", "User-Agent": user_agent})
-		with urllib.request.urlopen(req, timeout=auditor_timeout) as response:
-			more_pollen = json.loads(response.read().decode("utf-8"))
-			if is_pollen(more_pollen):
-				for sth in more_pollen["sths"]:
-					if is_sth(sth) and is_known_log(sth["log_id"]) and not has_sth(pollen["sths"], sth):
-						pollen["sths"].append(sth)
-	except (urllib.error.URLError, ValueError, socket.timeout) as err:
-		print("[%s] ct-honeybee: Auditor error: %s: %s" % (time.strftime(time_format), auditor_domain, err), file=sys.stderr)
+for auditor_domain in AUDITORS:
+    try:
+        req = Request("https://" + auditor_domain + "/.well-known/ct/v1/sth-pollination",
+                      data=json.dumps(POLLEN).encode("utf8"),
+                      headers={"Content-Type": "application/json",
+                               "User-Agent": USER_AGENT})
+        response = urlopen(req, timeout=AUDITOR_TIMEOUT)  # Certificate validation enabled
+        more_pollen = json.loads(response.read().decode("utf-8"))
+        if is_pollen(more_pollen):
+            for sth in more_pollen["sths"]:
+                if is_sth(sth) and is_known_log(sth["log_id"]) and \
+                   not has_sth(POLLEN["sths"], sth):
+                    POLLEN["sths"].append(sth)
+    except (URLError, ValueError, socket.timeout) as err:
+        print("[%s] ct-honeybee: Auditor error: %s: %s" %
+              (time.strftime(TIME_FORMAT), auditor_domain, err), file=sys.stderr)
 
 #print(json.dumps(pollen))
