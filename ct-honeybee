@@ -44,6 +44,7 @@ logs = [
 	[ "ct.cloudflare.com/logs/nimbus2020", "Xqdz+d9WwOe1Nkh90EngMnqRmgyEoRIShBh1loFxRVg=" ],
 	[ "ct.cloudflare.com/logs/nimbus2021", "RJRlLrDuzq/EQAfYqP4owNrmgr7YyzG1P9MzlrW2gag=" ],
 	[ "ct.cloudflare.com/logs/nimbus2022", "QcjKsd8iRkoQxqE6CUKHXk4xixsD6+tLx2jwkGKWBvY=" ],
+	[ "ct.cloudflare.com/logs/nimbus2023", "ejKMVNi3LbYg6jjgUh7phBZwMhOFTTvSK8E6V6NS61I=" ],
 	[ "ct.gdca.com.cn", "yc+JCiEQnGZswXo+0GXJMNDgE1qf66ha8UIQuAckIao=" ],
 	[ "ct.googleapis.com/aviator", "aPaY+B9kgr46jO65KB1M/HFRXWeT1ETRCmesu09P+8Q=" ],
 	[ "ct.googleapis.com/daedalus", "HQJLjrFJizRN/YfqPvwJlvdQbyNdHUlwYaR3PEOcJfs=" ],
