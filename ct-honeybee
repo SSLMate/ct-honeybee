@@ -157,8 +157,8 @@ for log_address, log_id in logs:
 				sth["log_id"] = log_id
 				if is_sth(sth):
 					pollen["sths"].append(sth)
-	except (urllib.error.URLError, ValueError, socket.timeout) as err:
-		print("[%s] ct-honeybee: Log error: %s: %s" % (time.strftime(time_format), log_address, err), file=sys.stderr)
+	except Exception as err:
+		print("[%s] ct-honeybee: Log error: %s: %s: %s" % (time.strftime(time_format), log_address, type(err).__name__, err), file=sys.stderr)
 
 random.shuffle(auditors)
 
@@ -173,7 +173,7 @@ for auditor_domain in auditors:
 				for sth in more_pollen["sths"]:
 					if is_sth(sth) and is_known_log(sth["log_id"]) and not has_sth(pollen["sths"], sth):
 						pollen["sths"].append(sth)
-	except (urllib.error.URLError, ValueError, socket.timeout) as err:
-		print("[%s] ct-honeybee: Auditor error: %s: %s" % (time.strftime(time_format), auditor_domain, err), file=sys.stderr)
+	except Exception as err:
+		print("[%s] ct-honeybee: Auditor error: %s: %s: %s" % (time.strftime(time_format), auditor_domain, type(err).__name__, err), file=sys.stderr)
 
 #print(json.dumps(pollen))
