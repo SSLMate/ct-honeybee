@@ -72,7 +72,6 @@ logs = [
 	[ "ct1.digicert-ct.com/log", "VhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0=" ],
 	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
 	[ "ctlog-gen2.api.venafi.com", "AwGd8/2FppqOvR+sxtqbpz5Gl3T+d/V5/FoIuDKMHWs=" ],
-	[ "ctlog.wotrus.com", "oXEni6iuir1G4jqDj74jdM4lWBrNpUBslrhxAEfpvsI=" ],
 	[ "ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg=" ],
 	[ "dodo.ct.comodo.com", "23b9raxl59CVCIhuIVm9i5A1L1/q0+PcXiLrNQrMe5g=" ],
 	[ "mammoth.ct.comodo.com", "b1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RM=" ],
