@@ -57,6 +57,8 @@ logs = [
 	[ "ct.googleapis.com/logs/argon2019", "Y/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0=" ],
 	[ "ct.googleapis.com/logs/argon2020", "sh4FzIuizYogTodm+Su5iiUgZ2va+nDnsklTLe+LkF4=" ],
 	[ "ct.googleapis.com/logs/argon2021", "9lyUL9F3MCIUVBgIMJRWjuNNExkzv98MLyALzE7xZOM=" ],
+	[ "ct.googleapis.com/logs/argon2022", "KXm+8J45OSHwVnOfY6V35b5XfZxgCvj5TV0mXCVdx4Q=" ],
+	[ "ct.googleapis.com/logs/argon2023", "6D7Q2j71BjUy51covIlryQPTy9ERa+zraeF3fW0GvW4=" ],
 	[ "ct.googleapis.com/logs/crucible", "w78Dp+HKiEHGB7rj/0Jw/KXsRbGG675OLPP8d4Yw9fY=" ],
 	[ "ct.googleapis.com/logs/solera2018", "UutLIl7IlpdIUGdfI+Q7wdAh4yFM5S7NX6h8IDzfygM=" ],
 	[ "ct.googleapis.com/logs/solera2019", "C3YOmouaaC+ImFsV6UdQGlZEa7qIMHhcOEKZQ4ZFDAA=" ],
@@ -100,6 +102,7 @@ logs = [
 	[ "yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM=" ],
 	[ "yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso=" ],
 	[ "yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI=" ],
+	[ "yeti2023.ct.digicert.com/log", "Nc8ZG7+xbFe/D61MbULLu7YnICZR6j/hKu+oA8M71kw=" ],
 ]
 
 auditors = [
