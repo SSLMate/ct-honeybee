@@ -81,7 +81,6 @@ logs = [
 	[ "ct.trustasia.com/log2022", "w2X5s2VPMoPHnamOk9dBj1ure+MlLJjh0vBLuetCfSM=" ],
 	[ "ct.trustasia.com/log2023", "6H6nZgvCbPYALvVyXT/g4zG5OTu5L79Y6zuQSdr1Q1o=" ],
 	[ "ct1.digicert-ct.com/log", "VhQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0=" ],
-	[ "ct2.digicert-ct.com/log", "h3W/51l8+IxDmV+9827/Vo1HVjb/SrVgwbTq/16ggw8=" ],
 	[ "ctserver.cnnic.cn", "pXesnO11SN2PAltnokEInfhuD0duwgPC7L7bGF8oJjg=" ],
 	[ "dodo.ct.comodo.com", "23b9raxl59CVCIhuIVm9i5A1L1/q0+PcXiLrNQrMe5g=" ],
 	[ "mammoth.ct.comodo.com", "b1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RM=" ],
