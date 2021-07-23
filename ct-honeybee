@@ -95,7 +95,7 @@ logs = [
 	[ "testflume.ct.letsencrypt.org/2023", "VTS3q1pqw6fL66ZUh7Ki1xtI9lD6F8UZfJegyyB288Y=" ],
 	[ "yeti2020.ct.digicert.com/log", "8JWkWfIA0YJAEC0vk4iOrUv+HUfjmeHQNKawqKqOsnM=" ],
 	[ "yeti2021.ct.digicert.com/log", "XNxDkv7mq0VEsV6a1FbmEDf71fpH3KFzlLJe5vbHDso=" ],
-	[ "yeti2022.ct.digicert.com/log", "IkVFB1lVJFaWP6Ev8fdthuAjJmOtwEt/XcaDXG7iDwI=" ],
+	[ "yeti2022-2.ct.digicert.com/log", "BZwB0yDgB4QTlYBJjRF8kDJmr69yULWvO0akPhGEDUo=" ],
 	[ "yeti2023.ct.digicert.com/log", "Nc8ZG7+xbFe/D61MbULLu7YnICZR6j/hKu+oA8M71kw=" ],
 ]
 
