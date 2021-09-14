@@ -12,8 +12,6 @@
 # vantage points increases the likelihood of detecting a misbehaving log
 # which has presented a different view of the log to different clients.
 #
-# Version: 2021-09-14
-#
 # Written in 2017 by Opsmate, Inc. d/b/a SSLMate <sslmate@sslmate.com>
 #
 # To the extent possible under law, the author(s) have dedicated all
@@ -35,6 +33,8 @@ import sys
 import time
 import urllib.request
 
+version = "2021-09-14"
+
 log_lists = [
 	"https://loglist.certspotter.org/honeybee.json",
 ]
@@ -44,7 +44,7 @@ auditors = [
 	"ct.grahamedgecombe.com",
 ]
 
-user_agent = "ct-honeybee (https://github.com/SSLMate/ct-honeybee/)"
+user_agent = "ct-honeybee/" + version + " (https://github.com/SSLMate/ct-honeybee/)"
 log_list_timeout = 60
 log_timeout = 15
 auditor_timeout = 60
