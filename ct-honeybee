@@ -41,7 +41,6 @@ log_lists = [
 
 auditors = [
 	"certspotter.com",
-	"ct.grahamedgecombe.com",
 ]
 
 user_agent = "ct-honeybee/" + version + " (https://github.com/SSLMate/ct-honeybee/)"
