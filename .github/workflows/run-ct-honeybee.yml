@@ -1,0 +1,14 @@
+name: Run ct-honeybee
+permissions:
+  contents: read
+on:
+  schedule:
+    - cron: '41 * * * *'
+jobs:
+  run-ct-honeybee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Run ct-honeybee script
+        run: ./ct-honeybee
