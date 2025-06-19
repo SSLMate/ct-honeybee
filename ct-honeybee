@@ -24,11 +24,14 @@
 # <https://creativecommons.org/publicdomain/zero/1.0/>.
 #
 
+import base64
+import hashlib
 import json
 import random
 import re
 import socket
 import ssl
+import struct
 import sys
 import time
 import urllib.request
@@ -82,8 +85,65 @@ def is_same_sth(a, b):
 def has_sth(sths, target_sth):
 	return any(sth for sth in sths if is_same_sth(sth, target_sth))
 
+def chomp_line(data):
+	idx = data.find(b'\n')
+	if idx == -1:
+		return "", b"", False
+	return data[:idx].decode('utf-8'), data[idx+1:], True
+
+def make_checkpoint_key_id(origin, log_id):
+	h = hashlib.sha256()
+	h.update(origin.encode('utf-8'))
+	h.update(b'\n\x05')
+	h.update(log_id)
+	return h.digest()[:4]
+
+def parse_checkpoint(data, log_id):
+	origin, data, _ = chomp_line(data)
+	size_line, data, _ = chomp_line(data)
+	try:
+		tree_size = int(size_line)
+	except ValueError as e:
+		raise ValueError(f"malformed tree size: {e}") from e
+	root_hash, data, _ = chomp_line(data)
+	while True:
+		line, rest, ok = chomp_line(data)
+		if not ok:
+			raise ValueError("signed note ended prematurely")
+		data = rest
+		if line == "":
+			break
+	signature_prefix = f"\u2014 {origin} "
+	key_id = make_checkpoint_key_id(origin, log_id)
+	while True:
+		signature_line, rest, ok = chomp_line(data)
+		if not ok:
+			raise ValueError("signed note is missing signature from the log")
+		data = rest
+		if not signature_line.startswith(signature_prefix):
+			continue
+		try:
+			sig_bytes = base64.b64decode(signature_line[len(signature_prefix):])
+		except Exception as e:
+			raise ValueError(f"malformed signature: {e}") from e
+		if not sig_bytes.startswith(key_id):
+			continue
+		if len(sig_bytes) < 12:
+			raise ValueError("malformed signature: too short")
+		timestamp = struct.unpack(">Q", sig_bytes[4:12])[0]
+		signature = sig_bytes[12:]
+		return {
+			"tree_size": tree_size,
+			"timestamp": timestamp,
+			"sha256_root_hash": root_hash,
+			"tree_head_signature": base64.b64encode(signature).decode('utf-8'),
+			"log_id": base64.b64encode(log_id).decode('utf-8'),
+			"sth_version": 0,
+		}
+
 pollen = { "sths": [] }
 logs = []
+tiled_logs = []
 
 for log_list_url in log_lists:
 	try:
@@ -93,6 +153,8 @@ for log_list_url in log_lists:
 			for operator in log_list["operators"]:
 				for log in operator["logs"]:
 					logs.append([ log["url"], log["log_id"] ])
+				for log in operator["tiled_logs"]:
+					tiled_logs.append([ log["monitoring_url"], log["log_id"] ])
 	except Exception as err:
 		print("[%s] ct-honeybee: log list error: %s: %s: %s" % (time.strftime(time_format), log_list_url, type(err).__name__, err), file=sys.stderr)
 
@@ -118,6 +180,16 @@ for log_url, log_id in logs:
 				sth["log_id"] = log_id
 				if is_sth(sth):
 					pollen["sths"].append(sth)
+	except Exception as err:
+		print("[%s] ct-honeybee: Log error: %s: %s: %s" % (time.strftime(time_format), log_url, type(err).__name__, err), file=sys.stderr)
+
+for log_url, log_id in tiled_logs:
+	try:
+		req = urllib.request.Request(log_url + "checkpoint",
+					     data=None, headers={"User-Agent": ""})
+		with urllib.request.urlopen(req, timeout=log_timeout) as response:
+			sth = parse_checkpoint(response.read(), base64.b64decode(log_id))
+			pollen["sths"].append(sth)
 	except Exception as err:
 		print("[%s] ct-honeybee: Log error: %s: %s: %s" % (time.strftime(time_format), log_url, type(err).__name__, err), file=sys.stderr)
 
