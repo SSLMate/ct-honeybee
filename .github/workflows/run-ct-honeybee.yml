@@ -2,6 +2,7 @@ name: Run ct-honeybee
 permissions:
   contents: read
 on:
+  workflow_dispatch:
   schedule:
     - cron: '41 * * * *'
 jobs:
