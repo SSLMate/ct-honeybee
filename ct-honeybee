@@ -74,6 +74,9 @@ def is_known_log(arg):
 	for _, log_id in logs:
 		if arg == log_id:
 			return True
+	for _, log_id in tiled_logs:
+		if arg == log_id:
+			return True
 	return False
 
 def is_same_sth(a, b):
