@@ -36,7 +36,7 @@ import sys
 import time
 import urllib.request
 
-version = "2025-06-19"
+version = "2025-06-20"
 
 log_lists = [
 	"https://loglist.certspotter.org/honeybee.json",
