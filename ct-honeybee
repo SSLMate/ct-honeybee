@@ -36,7 +36,7 @@ import sys
 import time
 import urllib.request
 
-version = "2025-06-20"
+version = "2025-08-07"
 
 log_lists = [
 	"https://loglist.certspotter.org/honeybee.json",
@@ -46,7 +46,7 @@ auditors = [
 	"certspotter.com",
 ]
 
-user_agent = "ct-honeybee/" + version + " (https://github.com/SSLMate/ct-honeybee/)"
+user_agent = "ct-honeybee/" + version + " (+https://github.com/SSLMate/ct-honeybee/)"
 log_list_timeout = 60
 log_timeout = 15
 auditor_timeout = 60
